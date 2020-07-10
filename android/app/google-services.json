@@ -44,6 +44,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "569092526287-brlmjin6bi18sh6k6rp5k6fpgdlaspar.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rhacafe_v1",
+            "certificate_hash": "dcf674999443b4f9711d83d20a59353fd24ac190"
+          }
+        },
+        {
           "client_id": "569092526287-0eir4ac0b762js68qddjsa4sc7dhel3l.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rhacafe_v1/AuthProvider.dart';
@@ -9,6 +10,7 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -44,14 +46,14 @@ class LoginView extends StatelessWidget {
   }
 
   Widget _signInButton(context) {
-    AuthProvider authProvider = Provider.of(context);
+    AuthProvider authProvider = new AuthProvider();
 
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () async {
         authProvider.signInWithGoogle();
         if (await authProvider.signInWithGoogle()) {
-          Navigator.pushReplacementNamed(context, '/catalog');
+          Navigator.popAndPushNamed(context, '/Catalog');
         }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),

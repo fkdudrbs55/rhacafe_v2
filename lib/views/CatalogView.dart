@@ -9,9 +9,12 @@ class CatalogView extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
+  //TODO fix Unfortunately, onUnknownRoute was not set when going backwords and reentering
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: DefaultAppBar().build(context),
       backgroundColor: const Color(0xffffffff),
       body: Stack(
         children: <Widget>[
@@ -30,12 +33,6 @@ class CatalogView extends StatelessWidget {
                   // Adobe XD layer: 'CatalogCard' (component)
                   CatalogCard(),
             ),
-          ),
-          Transform.translate(
-            offset: Offset(0.0, 1.0),
-            child:
-                // Adobe XD layer: 'DefaultAppBar' (component)
-                DefaultAppBar(),
           ),
         ],
       ),
