@@ -1,40 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:rhacafe_v1/AuthProvider.dart';
+import 'package:rhacafe_v1/views/ProfileView.dart';
 
 class DefaultAppBar extends StatelessWidget {
+  //TODO Change back button so that it does not go to login screen
 
   @override
   Widget build(BuildContext context) {
-    AuthProvider authService = new AuthProvider();
 
-    return AppBar(
-      title: const Text('Basic AppBar'),
-      actions: <Widget>[
-        // action button
-        IconButton(
-          icon: Icon(choices[0].icon),
-          onPressed: () {
-          },
-        ),
-        // action button
-        IconButton(
-          icon: Icon(choices[1].icon),
-          onPressed: () {
-          },
-        ),
-        // overflow menu
-        PopupMenuButton<Choice>(
-          itemBuilder: (BuildContext context) {
-            return choices.skip(2).map((Choice choice) {
-              return PopupMenuItem<Choice>(
-                value: choice,
-                child: Text(choice.title),
-              );
-            }).toList();
-          },
-        ),
-      ],
+    return PreferredSize(
+      preferredSize: Size.fromHeight(45.0),
+      child: AppBar(
+        backgroundColor: Colors.brown,
+                title: const Text(''),
+                actions: <Widget>[
+                  // action button
+                  IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => ProfileView())
+                      );
+                    },
+                  ),
+
+                  PopupMenuButton<Choice>(
+
+                    itemBuilder: (BuildContext context) {
+                      return choices.skip(2).map((Choice choice) {
+                        return PopupMenuItem<Choice>(
+                          value: choice,
+                          child: Text(choice.title),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ],
+              ),
     );
   }
 }

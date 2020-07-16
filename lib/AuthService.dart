@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class AuthProvider {
+class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -30,7 +30,7 @@ class AuthProvider {
   }
 
   void signOut() async {
-//    await googleSignIn.signOut();
+    await googleSignIn.signOut();
     await _auth.signOut();
   }
 
