@@ -23,6 +23,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  google_maps_flutter: ^0.5.27+3
+
+
   google_fonts: ^1.1.0
 
   google_sign_in: ^4.5.1
