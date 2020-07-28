@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rhacafe_v1/AuthService.dart';
+import 'file:///C:/Users/ykrha/AndroidStudioProjects/rhacafe_v1-master/lib/services/AuthService.dart';
 
 class LoginView extends StatelessWidget {
   LoginView({
@@ -45,13 +45,13 @@ class LoginView extends StatelessWidget {
 
   Widget _signInButton(context) {
 
-    AuthService authProvider = new AuthService();
+    AuthService authService = new AuthService();
 
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () async {
-        authProvider.signInWithGoogle();
-        if (await authProvider.signInWithGoogle()) {
+        authService.signInWithGoogle();
+        if (await authService.signInWithGoogle()) {
           Navigator.of(context).pushReplacementNamed('/Catalog');
         }
       },

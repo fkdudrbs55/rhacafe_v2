@@ -51,7 +51,7 @@ class _CatalogCard extends StatelessWidget {
               )),
           Padding(
             padding: EdgeInsets.fromLTRB(12.0, 20.0, 12.0, 0.0),
-            child: Text(item.location, style: textTheme.subtitle2),
+            child: Text(item.location.substring(0,6), style: textTheme.subtitle2),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 0.0),

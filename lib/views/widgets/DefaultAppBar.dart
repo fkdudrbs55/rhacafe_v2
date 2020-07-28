@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rhacafe_v1/views/ProfileView.dart';
 
 class DefaultAppBar extends StatelessWidget {
-  //TODO Change back button so that it does not go to login screen
+  //TODO Check back button so that it does not go to login screen
 
   @override
   Widget build(BuildContext context) {

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rhacafe_v1/views/HomeView.dart';
 import 'package:rhacafe_v1/models/CafeItem.dart';
-import 'DatabaseService.dart';
+import 'services/DatabaseService.dart';
 
 void main() => runApp(MyApp());
 
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           fontFamily: 'Roboto',
           textTheme: TextTheme(
-            headline1: TextStyle(fontSize: 72, fontWeight: FontWeight.bold),
+            headline1: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
             headline2: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             headline3: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             subtitle1: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
