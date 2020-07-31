@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
             subtitle2: TextStyle(fontSize: 12, fontWeight: FontWeight.w100),
             bodyText1: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
             bodyText2: TextStyle(fontSize: 10, fontWeight: FontWeight.w100),
+            headline4: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.white)
           )
         ),
         home: HomeView(),
