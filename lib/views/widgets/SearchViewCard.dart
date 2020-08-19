@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class SearchViewCard extends StatelessWidget {
-  SearchViewCard({
-    Key key,
-  }) : super(key: key);
+  final int index;
+
+  SearchViewCard(this.index);
 
   @override
   Widget build(BuildContext context) {

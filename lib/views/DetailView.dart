@@ -127,7 +127,7 @@ class DetailView extends StatelessWidget {
                     children: <Widget>[
                       Text(item.name, style: textTheme.headline1),
                       Row(
-                        //TODO 1 Add content + score calculating functionality
+                        //TODO 1 Add content # + score calculating functionality > Separate to ViewModel
                         children: <Widget>[
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -162,6 +162,7 @@ class DetailView extends StatelessWidget {
                         width: double.infinity,
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
+                          //TODO How to fill this text space? Currently just copying main view
                           child: Text(
                             item.content,
                             style: textTheme.bodyText1,

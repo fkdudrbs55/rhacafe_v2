@@ -5,6 +5,7 @@ import 'package:rhacafe_v1/views/ProfileView.dart';
 import 'package:rhacafe_v1/views/SearchView.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:rhacafe_v1/views/widgets/DefaultAppBar.dart';
 
 class HomeView extends StatefulWidget {
   HomeView({
