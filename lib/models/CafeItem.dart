@@ -9,6 +9,7 @@ class CafeItem {
   final String name;
   final Map geopoint;
   final String contact;
+  final String region;
 
   CafeItem(
       {this.documentID,
@@ -19,5 +20,6 @@ class CafeItem {
       this.content,
       this.name,
       this.geopoint,
-      this.contact});
+      this.contact,
+      this.region});
 }

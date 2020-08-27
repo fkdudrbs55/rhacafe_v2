@@ -30,8 +30,8 @@ class DatabaseService {
         content: doc.data['content'] ?? '',
         name: doc.data['name'] ?? '',
         geopoint: coordinates ?? '',
-      contact: doc.data['contact'] ?? ''
-    );
+        contact: doc.data['contact'] ?? '',
+        region: doc.data['region']);
   }
 
   Future<List<DocumentSnapshot>> getCommentSnapshotList(CafeItem item) async {
@@ -60,7 +60,10 @@ class DatabaseService {
   }
 
   void addDemoDocument(documentId, data) async {
-
-    await _db.collection('SampleCollection').document(documentId).collection("Comments").add(data);
+    await _db
+        .collection('SampleCollection')
+        .document(documentId)
+        .collection("Comments")
+        .add(data);
   }
 }

@@ -1,4 +1,13 @@
 class LocationData {
+
+  final seoulRegions = [
+    '신사역/가로수길',
+    '이태원역/한남동',
+    '홍대입구역/연희동',
+    '합정역/상수역',
+    '성수역/뚝섬역'
+  ];
+
   final GIZMAstations = [
     '신사역',
     '4·19민주묘지역',

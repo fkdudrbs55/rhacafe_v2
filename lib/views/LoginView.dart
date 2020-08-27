@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'file:///C:/Users/ykrha/AndroidStudioProjects/rhacafe_v1-master/lib/services/AuthService.dart';
+import 'package:rhacafe_v1/services/AuthService.dart';
 
 class LoginView extends StatelessWidget {
   LoginView({

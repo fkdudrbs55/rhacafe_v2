@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rhacafe_v1/views/CatalogView.dart';
 import 'package:rhacafe_v1/views/LoginView.dart';
 import 'package:rhacafe_v1/views/ProfileView.dart';
-import 'package:rhacafe_v1/views/SearchView.dart';
+import 'package:rhacafe_v1/views/CurrentLocationView.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rhacafe_v1/views/widgets/DefaultAppBar.dart';
@@ -19,7 +19,8 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  final bodyList = [CatalogView(), SearchView(), ProfileView()];
+
+  final bodyList = [CatalogView(), CurrentLocationView(), ProfileView()];
 
   int _currentIndex = 0;
 
@@ -67,6 +68,7 @@ class _HomeViewState extends State<HomeView> {
             }
           },
           child: Scaffold(
+            appBar: DefaultAppBar().build(context),
               bottomNavigationBar: BottomNavigationBar(
                 selectedItemColor: Colors.brown,
                 onTap: onTapTapped,

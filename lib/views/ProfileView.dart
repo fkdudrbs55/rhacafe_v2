@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:rhacafe_v1/services/AuthService.dart';
 import 'package:rhacafe_v1/views/LoginView.dart';
 import 'widgets/ProfileTab.dart';
-import 'file:///C:/Users/ykrha/AndroidStudioProjects/rhacafe_v1-master/lib/services/AuthService.dart';
 
 class ProfileView extends StatelessWidget {
   ProfileView({
