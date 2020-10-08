@@ -22,7 +22,8 @@ class CatalogView extends StatelessWidget {
     );
   }
 
-  //TODO 코드 정리
+  //TODO PS. ViewModel로 옮길 수 있는 부분들이 없나?
+  //TODO 1. CatalogView는 무조건 그냥 블로그 형식으로. 한 번에 호출하는 포스트 개수 제한(10) + 스크롤 시 추가 호출
   @override
   Widget build(BuildContext context) {
     final _db = DatabaseService();

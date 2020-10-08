@@ -28,7 +28,7 @@ class DetailView extends StatelessWidget {
 
     final LatLng _center = LatLng(item.geopoint[0], item.geopoint[1]);
 
-    //TODO Separate map related factors into MapService? How should I restrict this?
+    //TODO Separate map related factors into MapService?
     void _onMapCreated(GoogleMapController controller) {
       mapController = controller;
     }
@@ -43,18 +43,18 @@ class DetailView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          _db.addDemoDocument(item.documentID, {
-            'ID': user.uid,
-            'comment': 'w좋았어요',
-            'score': 4,
-            'timestamp': Timestamp.now(),
-            'photoUrl': user.photoUrl
-          });
-        },
-      ),
+//      floatingActionButton: FloatingActionButton(
+//        child: Icon(Icons.add),
+//        onPressed: () {
+//          _db.addDemoDocument(item.documentID, {
+//            'ID': user.uid,
+//            'comment': '좋았어요',
+//            'score': 4,
+//            'timestamp': Timestamp.now(),
+//            'photoUrl': user.photoUrl
+//          });
+//        },
+//      ),
       body: SingleChildScrollView(
         child: Column(
           children: [

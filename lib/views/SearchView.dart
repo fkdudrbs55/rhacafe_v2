@@ -1,7 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:rhacafe_v1/models/CafeItem.dart';
-import 'package:rhacafe_v1/services/DatabaseService.dart';
 import 'package:rhacafe_v1/views/CatalogView.dart';
 import '../locationData.dart';
 import 'package:rhacafe_v1/views/widgets/CustomSearchDelegate.dart';
@@ -12,7 +9,6 @@ class SearchView extends CustomSearchDelegate<String> {
   static const recentRegions = [];
 
   @override
-  // TODO: implement searchFieldLabel
   String get searchFieldLabel => '지하철역, 동, 가게 이름';
 
   @override
@@ -39,6 +35,10 @@ class SearchView extends CustomSearchDelegate<String> {
     );
   }
 
+  //TODO 2. Query는 무조건 CurrentLocationView로 이어져서 리스트 + 필터 보여줄 수 있도록
+  //TODO 3. 비완전 검색어(현재는 위치만 구현, 음식점 명까지) 관련해서 구현 가능할지.
+  //TODO 3.1 위치, 카페명 분리 + Algolia implementation
+
   @override
   Widget buildResults(BuildContext context) {
     return CatalogView(query: query);
@@ -62,8 +62,7 @@ class SearchView extends CustomSearchDelegate<String> {
           title: RichText(
             text: TextSpan(
                 text: suggestionList[index].substring(0, query.length),
-                style:
-                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 children: [
                   TextSpan(
                       text: suggestionList[index].substring(query.length),
@@ -87,7 +86,6 @@ class SearchView extends CustomSearchDelegate<String> {
 //class _SearchViewState extends State<SearchView> {
 //  @override
 //  Widget build(BuildContext context) {
-//    // TODO: implement build
 //    throw UnimplementedError();
 //  }
 //}
