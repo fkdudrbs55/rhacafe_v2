@@ -17,6 +17,9 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
+
+  algolia: ^0.1.7
+
   gcloud: ^0.7.3
 
   geolocator: ^6.0.0

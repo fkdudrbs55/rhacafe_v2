@@ -20,7 +20,10 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
 
-  final bodyList = [CatalogView(), CurrentLocationView(), ProfileView()];
+  final bodyList = [
+    CatalogView(),
+    CurrentLocationView(),
+    ProfileView()];
 
   int _currentIndex = 0;
 

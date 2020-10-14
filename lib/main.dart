@@ -1,6 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'models/UserLocation.dart';
+import 'services/LocationService.dart';
 import 'package:rhacafe_v1/views/HomeView.dart';
 import 'package:rhacafe_v1/models/CafeItem.dart';
 import 'services/DatabaseService.dart';
@@ -13,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final DatabaseService _db = DatabaseService();
-
+    final LocationService _ls = LocationService();
 
     return MultiProvider(
       providers: [
@@ -22,6 +26,10 @@ class MyApp extends StatelessWidget {
         ),
 
         StreamProvider<List<CafeItem>>.value(value: _db.streamCafeList()),
+
+        FutureProvider<UserLocation>.value(
+          value: _ls.getCurrentLocationString(),
+        )
 
       ],
       child: MaterialApp(

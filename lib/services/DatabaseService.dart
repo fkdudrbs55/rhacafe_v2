@@ -1,6 +1,6 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:rhacafe_v1/models/CafeItem.dart';
 import 'dart:async';
 import '../models/Comment.dart';
@@ -12,6 +12,7 @@ class DatabaseService {
     return _db.collection('SampleCollection').snapshots().map(
         (list) => list.documents.map((doc) => deriveCafeItem(doc)).toList());
   }
+
 
   CafeItem deriveCafeItem(DocumentSnapshot doc) {
     GeoPoint geoPoint = doc.data['geopoint'];

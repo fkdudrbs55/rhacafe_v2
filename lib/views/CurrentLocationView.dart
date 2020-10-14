@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+import 'package:rhacafe_v1/models/UserLocation.dart';
+import 'package:rhacafe_v1/services/LocationService.dart';
 import 'widgets/CurrentLocationCard.dart';
+import 'package:algolia/algolia.dart';
 
 class CurrentLocationView extends StatelessWidget {
   final sort = [
@@ -13,8 +17,6 @@ class CurrentLocationView extends StatelessWidget {
     '공부하기 좋은',
     '대화하기 좋은',
   ];
-
-  final int _value = 0;
 
   void sortModalBottomSheet(context) {
     var textTheme = Theme.of(context).textTheme;
@@ -35,7 +37,7 @@ class CurrentLocationView extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ChoiceChip(
-                          selected: index == _value,
+                          selected: index == 0,
                           label: Text(sort[index]),
                         ),
                       );
@@ -65,7 +67,7 @@ class CurrentLocationView extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ChoiceChip(
-                          selected: index == _value,
+                          selected: index == 0,
                           label: Text(filter[index]),
                         ),
                       );
@@ -76,33 +78,15 @@ class CurrentLocationView extends StatelessWidget {
         });
   }
 
-  Future<String> _getCurrentLocationString() async {
-
-    Position position =
-        await getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-
-    return _getAddressFromLatLng(position);
-  }
-
-  Future<String> _getAddressFromLatLng(Position position) async {
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(position.latitude, position.longitude, localeIdentifier: 'ko_KR');
-
-    Placemark place = placemarks[0];
-
-    return "${place.subLocality} ${place.thoroughfare}";
-  }
-
   //TODO 4. 현재 위치 파악(o) + 위치 기반해서 인접 카페를 검색/지도 상에 보여주기(Algolia)
 
   @override
   Widget build(BuildContext context) {
     var textTheme = Theme.of(context).textTheme;
 
-    return FutureBuilder<Object>(
-      future: _getCurrentLocationString(),
-      builder: (context, snapshot) {
-        return Column(
+    UserLocation currentLocation = Provider.of(context);
+
+    return Column(
           children: <Widget>[
             Container(
               height: 45,
@@ -118,7 +102,7 @@ class CurrentLocationView extends StatelessWidget {
                           width: 4,
                         ),
                         Text(
-                          snapshot.data,
+                          currentLocation.stringRep,
                           style: textTheme.headline5,
                         ),
                       ],
@@ -162,6 +146,5 @@ class CurrentLocationView extends StatelessWidget {
           ],
         );
       }
-    );
   }
-}
+
