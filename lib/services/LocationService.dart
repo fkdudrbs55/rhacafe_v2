@@ -34,7 +34,7 @@ class LocationService{
 
     String rep = "${place.subLocality} ${place.thoroughfare}";
 
-    return UserLocation(latitude: position.latitude, longitude: position.longitude, stringRep: rep);
+    return UserLocation(latitude: position.latitude, longitude: position.longitude, stringRep: rep, dong: place.thoroughfare);
   }
 
   Future<String> getAddressFromLatLng(Position position) async {

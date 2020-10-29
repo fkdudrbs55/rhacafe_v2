@@ -10,8 +10,6 @@ import 'package:rhacafe_v1/views/widgets/CommentSection.dart';
 
 import '../services/DatabaseService.dart';
 
-//TODO Should I use Flexible to ensure that widgets are adjustable?
-
 class DetailView extends StatelessWidget {
   final CafeItem item;
 
@@ -22,9 +20,6 @@ class DetailView extends StatelessWidget {
     var textTheme = Theme.of(context).textTheme;
 
     GoogleMapController mapController;
-
-    FirebaseUser user = Provider.of(context);
-    DatabaseService _db = DatabaseService();
 
     final LatLng _center = LatLng(item.geopoint[0], item.geopoint[1]);
 
@@ -63,71 +58,98 @@ class DetailView extends StatelessWidget {
               children: <Widget>[
                 Column(
                   children: <Widget>[
-                    FittedBox(
-                        fit: BoxFit.contain,
-                        child: CachedNetworkImage(
-                          placeholder: (context, url) =>
-                              CircularProgressIndicator(),
-                          imageUrl: item.imageUrl,
-                          fit: BoxFit.fitHeight,
-                        )),
-                    SizedBox(
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height/3,
+                      child: FittedBox(
+                          fit: BoxFit.cover,
+                          child: CachedNetworkImage(
+                            placeholder: (context, url) =>
+                                Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: MediaQuery.of(context).size.height/3,
+                                  child: Center(
+                                      child: CircularProgressIndicator()
+                                  ),
+                                ),
+                            imageUrl: item.imageUrl,
+                          )),
+                    ),
+                    Container(
                       width: double.infinity,
-                      height: 240,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            Row(
+                      height: MediaQuery.of(context).size.height/3,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
-                                Icon(Icons.local_cafe),
-                                SizedBox(width: 10),
-                                Text(
-                                  item.name,
-                                  style: textTheme.bodyText1,
+                                Expanded(
+                                  flex: 7,
+                                  child: SizedBox(
+                                    height: 5,
+                                  ),
                                 ),
+
+                                Expanded(
+                                  flex: 3,
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(Icons.local_cafe),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        item.name,
+                                        style: textTheme.bodyText1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+//                            SizedBox(height: 15),
+                                Expanded(
+                                  flex: 3,
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(Icons.place),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        item.location,
+                                        style: textTheme.bodyText1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(Icons.phone),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        item.contact,
+                                        style: textTheme.bodyText1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            Expanded(
+                              flex: 1,
+                                child: SizedBox(height: 5)),
                               ],
                             ),
-                            SizedBox(height: 15),
-                            Row(
-                              children: <Widget>[
-                                Icon(Icons.place),
-                                SizedBox(width: 10),
-                                Text(
-                                  item.location,
-                                  style: textTheme.bodyText1,
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 15),
-                            Row(
-                              children: <Widget>[
-                                Icon(Icons.phone),
-                                SizedBox(width: 10),
-                                Text(
-                                  item.contact,
-                                  style: textTheme.bodyText1,
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 20),
-                          ],
                         ),
                       ),
-                    )
                   ],
                 ),
                 Positioned(
                   left: 10,
                   right: 10,
-                  top: 170,
+                  top: MediaQuery.of(context).size.height/4,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(item.name, style: textTheme.headline1),
                       Row(
-                        //TODO 1 Add content # + score calculating functionality > Separate to ViewModel
+                        //TODO Score calculating functionality > Separate to ViewModel
                         children: <Widget>[
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -162,10 +184,11 @@ class DetailView extends StatelessWidget {
                         width: double.infinity,
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          //TODO How to fill this text space? Currently just copying main view
-                          child: Text(
-                            item.content,
-                            style: textTheme.bodyText1,
+                          child: Center(
+                            child: Text(
+                              item.content,
+                              style: textTheme.bodyText1,
+                            ),
                           ),
                         ),
                       ),

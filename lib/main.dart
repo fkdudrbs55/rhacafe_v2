@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:rhacafe_v1/views/LoginView.dart';
 import 'models/UserLocation.dart';
 import 'services/LocationService.dart';
 import 'package:rhacafe_v1/views/HomeView.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
             value: FirebaseAuth.instance.onAuthStateChanged
         ),
 
-        StreamProvider<List<CafeItem>>.value(value: _db.streamCafeList()),
+//        StreamProvider<List<CafeItem>>.value(value: _db.streamCafeList()),
 
         FutureProvider<UserLocation>.value(
           value: _ls.getCurrentLocationString(),
@@ -33,6 +34,12 @@ class MyApp extends StatelessWidget {
 
       ],
       child: MaterialApp(
+        routes: {
+          '/': (context) => HomeView(),
+          '/login': (context) => LoginView()
+        },
+
+        initialRoute: '/',
         theme: ThemeData(
           fontFamily: 'Roboto',
           textTheme: TextTheme(
@@ -47,7 +54,6 @@ class MyApp extends StatelessWidget {
             headline5: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
           )
         ),
-        home: HomeView(),
       ),
     );
   }

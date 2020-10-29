@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rhacafe_v1/services/AuthService.dart';
 
+import 'HomeView.dart';
+
 class LoginView extends StatelessWidget {
   LoginView({
     Key key,
@@ -52,8 +54,8 @@ class LoginView extends StatelessWidget {
       onPressed: () async {
         authService.signInWithGoogle();
         if (await authService.signInWithGoogle()) {
-          Navigator.of(context).pushReplacementNamed('/Catalog');
-        }
+          Navigator.of(context)
+              .popAndPushNamed('/');        }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,

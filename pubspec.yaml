@@ -18,6 +18,8 @@ environment:
 
 dependencies:
 
+  pull_to_refresh: ^1.6.2
+
   algolia: ^0.1.7
 
   gcloud: ^0.7.3

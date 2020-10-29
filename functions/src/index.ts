@@ -34,10 +34,14 @@ export const sendCollectionToAlgolia = functions.https.onRequest(async (req, res
         const record = {
             objectID: doc.id,
             name: document['name'],
+            subtitle: document['subtitle'],
 			content: document['content'],
             location: document['location'],
-            region: document['region'],
             title: document['title'],
+            contact: document['contact'],
+            geopoint: document['geopoint'],
+            imageUrl: document['imageUrl'],
+            timestamp: document['timestamp']
         };
 
         algoliaRecords.push(record);

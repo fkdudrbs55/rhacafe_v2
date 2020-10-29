@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rhacafe_v1/models/CafeItem.dart';
 import 'package:rhacafe_v1/views/CatalogView.dart';
 import 'package:rhacafe_v1/views/LoginView.dart';
 import 'package:rhacafe_v1/views/ProfileView.dart';
@@ -8,24 +9,36 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rhacafe_v1/views/widgets/DefaultAppBar.dart';
 
 class HomeView extends StatefulWidget {
-  HomeView({
-    Key key,
-  }) : super(key: key);
+  final index;
+
+  HomeView({this.index = 0,});
 
   @override
   State<HomeView> createState() {
-    return _HomeViewState();
+    return _HomeViewState(index);
   }
 }
 
 class _HomeViewState extends State<HomeView> {
 
-  final bodyList = [
-    CatalogView(),
-    CurrentLocationView(),
-    ProfileView()];
+  int _currentIndex;
+  List<CafeItem> cafeItemList;
+  var bodyList;
 
-  int _currentIndex = 0;
+  _HomeViewState(this._currentIndex);
+
+  @override
+  void initState() {
+
+
+    bodyList = [
+      CatalogView(),
+      CurrentLocationView(),
+      ProfileView()];
+
+    super.initState();
+  }
+
 
   void onTapTapped(int index) {
     setState(() {

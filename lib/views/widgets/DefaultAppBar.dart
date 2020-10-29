@@ -18,7 +18,7 @@ class DefaultAppBar extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () {
-              showCustomSearch(context: context, delegate: SearchView());
+              showSearch(context: context, delegate: SearchView());
             },
           ),
 

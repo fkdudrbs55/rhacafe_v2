@@ -3,7 +3,9 @@ import 'package:rhacafe_v1/views/CatalogView.dart';
 import '../locationData.dart';
 import 'package:rhacafe_v1/views/widgets/CustomSearchDelegate.dart';
 
-class SearchView extends CustomSearchDelegate<String> {
+import 'SearchResultView.dart';
+
+class SearchView extends SearchDelegate<String> {
   final regions = LocationData().seoulRegions;
 
   static const recentRegions = [];
@@ -35,13 +37,9 @@ class SearchView extends CustomSearchDelegate<String> {
     );
   }
 
-  //TODO 2. Query는 무조건 CurrentLocationView로 이어져서 리스트 + 필터 보여줄 수 있도록
-  //TODO 3. 비완전 검색어(현재는 위치만 구현, 음식점 명까지) 관련해서 구현 가능할지.
-  //TODO 3.1 위치, 카페명 분리 + Algolia implementation
-
   @override
   Widget buildResults(BuildContext context) {
-    return CatalogView(query: query);
+    return SearchResultView(query);
   }
 
   @override
@@ -50,7 +48,7 @@ class SearchView extends CustomSearchDelegate<String> {
         ? recentRegions
         : regions.where((element) => element.contains(query)).toList();
 
-    //TODO 색 칠해지는거 실제 query에 맞춰서 되는걸로 바꿀 수 없을까
+    //TODO 효과적인 Suggestion은 무엇일까
 
     return ListView.builder(
       itemBuilder: (context, index) => ListTile(

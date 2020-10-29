@@ -30,7 +30,7 @@ class ProfileView extends StatelessWidget {
                 //Necessary since although CatalogView is reloaded, this is a separate route
                 //and thus this view itself is not reloaded.
                 Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => LoginView()));
+                    .popAndPushNamed('/login');
 
               },
             )

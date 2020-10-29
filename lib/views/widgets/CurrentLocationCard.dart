@@ -1,13 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:rhacafe_v1/models/CafeItem.dart';
 
 class CurrentLocationCard extends StatelessWidget {
   final int index;
+  final List<CafeItem> cafeItemList;
 
-  CurrentLocationCard(this.index);
+  CurrentLocationCard(this.index, this.cafeItemList);
 
   @override
   Widget build(BuildContext context) {
+
+    CafeItem cafeItem = cafeItemList[index];
 
     var textTheme = Theme.of(context).textTheme;
 
@@ -20,8 +24,14 @@ class CurrentLocationCard extends StatelessWidget {
             height: 100,
             child: CachedNetworkImage(
               placeholder: (context, url) =>
-                CircularProgressIndicator(),
-              imageUrl: "https://firebasestorage.googleapis.com/v0/b/providershopper-b9c69.appspot.com/o/cafe_images%2Fgwanja.jpg?alt=media&token=5b2edb9a-d663-4c3f-bc25-3290574f7c18",
+                  Container(
+                    width: 100,
+                    height: 100,
+                    child: Center(
+                        child: CircularProgressIndicator()
+                    ),
+                  ),
+              imageUrl: cafeItem.imageUrl,
               fit: BoxFit.fitHeight,
             ),
           ),
@@ -30,11 +40,11 @@ class CurrentLocationCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('스코프', style: textTheme.headline5,),
+                Text(cafeItem.name, style: textTheme.headline5,),
                 SizedBox(height: 4,),
-                Text('수요미식회: 부암동 영국식 베이커리', style: textTheme.subtitle1,),
+                Text(cafeItem.subtitle, style: textTheme.subtitle1,),
                 SizedBox(height: 4,),
-                Text('서울특별시 종로구 창의문로 149', style: textTheme.bodyText2,),
+                Text(cafeItem.location, style: textTheme.bodyText2,),
                 SizedBox(height: 4,),
                 Text('1만원 이하 / 1인       591m ', style: textTheme.bodyText2,)
 

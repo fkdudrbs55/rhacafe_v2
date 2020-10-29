@@ -1,87 +1,147 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flushbar/flushbar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rhacafe_v1/services/DatabaseService.dart';
 import 'package:rhacafe_v1/views/widgets/DefaultAppBar.dart';
 import './DetailView.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:rhacafe_v1/models/CafeItem.dart';
 
-class CatalogView extends StatelessWidget {
-  final String query;
+import 'HomeView.dart';
 
-  CatalogView({this.query = ''});
+class CatalogView extends StatefulWidget {
+  @override
+  State<CatalogView> createState() {
+    return _CatalogViewState();
+  }
+}
 
-  Widget buildScrollView(List<CafeItem> itemsList) {
+class _CatalogViewState extends State<CatalogView> {
+  List<CafeItem> lastCafeItemList = [];
+  List<CafeItem> nextCafeItemList = [];
+  DocumentSnapshot lastVisible;
+  final _db = DatabaseService();
+  ScrollController _scrollController;
+  bool isInitialLoad = true;
+  bool isEndOfCollection = false;
+  static const lengthOfCollection = 8;
+  static const limit = 5;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController = ScrollController()..addListener(_scrollListener);
+  }
+
+  Widget buildScrollView(context, List<CafeItem> itemsList) {
+    print('buildScrollView itemsList length is ${itemsList.length.toString()}');
+
     return Scaffold(
-      body: CustomScrollView(slivers: [
-        SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-          return _CatalogCard(index, itemsList);
-        }, childCount: itemsList.length)),
-      ]),
+      body: CustomScrollView(
+          controller: _scrollController,
+          physics: ClampingScrollPhysics(),
+          slivers: [
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return _CatalogCard(index, itemsList);
+              }, childCount: itemsList.length),
+            ),
+            SliverToBoxAdapter(child: showFooter())
+          ]),
     );
   }
 
-  //TODO PS. ViewModel로 옮길 수 있는 부분들이 없나?
-  //TODO 1. CatalogView는 무조건 그냥 블로그 형식으로. 한 번에 호출하는 포스트 개수 제한(10) + 스크롤 시 추가 호출
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _onLoading();
+    }
+  }
+
+  Widget showFooter() {
+    if (!isEndOfCollection) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      return null;
+    }
+  }
+
+  void _onLoading() async {
+
+    if(!isEndOfCollection){
+      List<DocumentSnapshot> newList =
+      await _db.getCafeSnapshotList(limit, lastVisible: lastVisible);
+
+      print(newList.length.toString());
+
+      List<CafeItem> newDerivedList = _db.deriveCafeListFromSnapshots(newList);
+      for (int i = 0; i < newDerivedList.length; i++) {
+        lastCafeItemList.add(newDerivedList[i]);
+      }
+
+      print(newList.elementAt(newList.length -1) == lastVisible);
+
+      if (newList.length < limit || newDerivedList.elementAt(newList.length -1) == lastCafeItemList.elementAt(lastCafeItemList.length -1)) {
+
+        isEndOfCollection = true;
+
+      }
+
+      nextCafeItemList = lastCafeItemList;
+
+      setState(() {
+        isInitialLoad = false;
+      });
+    } else{
+      Flushbar(
+        message: "불러드릴 정보가 없습니다",
+        duration: Duration(seconds: 2),
+      )..show(context);
+
+      return;
+    }
+  }
+
+//TODO PS. ViewModel로 옮길 수 있는 부분들이 없나?
+
   @override
   Widget build(BuildContext context) {
-    final _db = DatabaseService();
+    return FutureBuilder<List<DocumentSnapshot>>(
+        future: _db.getCafeSnapshotList(limit),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              isInitialLoad == true) {
+            return Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
 
-    if (query != '') {
-      return StreamBuilder<List<CafeItem>>(
-          stream: Firestore.instance
-              .collection('SampleCollection')
-              .where('region', isEqualTo: query)
-              .snapshots()
-              .map((list) => list.documents
-                  .map((doc) => _db.deriveCafeItem(doc))
-                  .toList()),
-          builder: (context, snapshot) {
-            List<CafeItem> itemsList = snapshot.data;
+          List<DocumentSnapshot> data = snapshot.data;
 
-            if(snapshot.data == null){
-              return CircularProgressIndicator();
-            }
+          List<CafeItem> itemsList = _db.deriveCafeListFromSnapshots(data);
 
-            if (itemsList.isEmpty) {
-              return Scaffold(
-                body: Center(
-                  child: Text('No data yet'),
-                ),
-              );
-            } else {
-              return buildScrollView(itemsList);
-            }
-          });
-    } else {
-      return StreamBuilder<List<CafeItem>>(
-          stream: Firestore.instance
-              .collection('SampleCollection')
-              .limit(10)
-              .snapshots()
-              .map((list) => list.documents
-                  .map((doc) => _db.deriveCafeItem(doc))
-                  .toList()),
-          builder: (context, snapshot) {
+          lastCafeItemList = itemsList;
+          lastVisible = data.elementAt(itemsList.length - 1);
 
-            if(snapshot.data == null){
-              return CircularProgressIndicator();
-            }
-
-            List<CafeItem> itemsList = snapshot.data;
-
-            if (itemsList.isEmpty) {
-              return Scaffold(
-                body: Center(
-                  child: Text('No data yet'),
-                ),
-              );
-            } else {
-              return buildScrollView(itemsList);
-            }
-          });
-    }
+          if (itemsList.isEmpty) {
+            return Scaffold(
+              body: Center(
+                child: Text('No data yet'),
+              ),
+            );
+          } else if (nextCafeItemList.isEmpty) {
+            return buildScrollView(context, lastCafeItemList);
+          } else {
+            return buildScrollView(context, nextCafeItemList);
+          }
+        });
   }
 }
 
@@ -101,13 +161,21 @@ class _CatalogCard extends StatelessWidget {
         onTap: () => Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => DetailView(item))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          FittedBox(
-              fit: BoxFit.contain,
-              child: CachedNetworkImage(
-                placeholder: (context, url) => CircularProgressIndicator(),
-                imageUrl: item.imageUrl,
-                fit: BoxFit.fitHeight,
-              )),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 3,
+            child: FittedBox(
+                fit: BoxFit.cover,
+                child: CachedNetworkImage(
+                  placeholder: (context, url) => Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height / 3,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  imageUrl: item.imageUrl,
+//                  fit: BoxFit.fitHeight,
+                )),
+          ),
           Padding(
             padding: EdgeInsets.fromLTRB(12.0, 20.0, 12.0, 0.0),
             child:

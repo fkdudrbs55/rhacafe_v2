@@ -25,11 +25,26 @@ class CommentSection extends StatelessWidget {
     return FutureBuilder<List<DocumentSnapshot>>(
         future: _db.getCommentSnapshotList(item),
         builder: (context, snapshot) {
-          if (snapshot.data == null || snapshot.data.length == 0) {
-            return Text('아직 리뷰가 없습니다');
-          }
 
-          List<Comment> commentList = _db.deriveCommentList(snapshot.data);
+          if(snapshot.connectionState == ConnectionState.waiting){
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: 50,
+              child: Center(
+                  child: CircularProgressIndicator()
+              ),
+            );
+          }
+          List<DocumentSnapshot> data = snapshot.data;
+
+          List<Comment> commentList = _db.deriveCommentList(data);
+
+          if (commentList.length == 0) {
+            return Container(
+                width: MediaQuery.of(context).size.width,
+                height: 50,
+                child: Center(child: Text('아직 리뷰가 없습니다', style: textTheme.bodyText1,)));
+          }
 
           return Padding(
             padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 8),
@@ -56,7 +71,7 @@ class CommentSection extends StatelessWidget {
                                       width: 40,
                                       height: 40,
                                       placeholder: (context, url) =>
-                                          CircularProgressIndicator(),
+                                          Center(child: CircularProgressIndicator()),
                                       imageUrl: e.photoUrl,
                                       fit: BoxFit.fitHeight,
                                     ),

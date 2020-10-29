@@ -9,7 +9,7 @@ class CafeItem {
   final String name;
   final Map geopoint;
   final String contact;
-  final String region;
+  final DateTime timestamp;
 
   CafeItem(
       {this.documentID,
@@ -21,5 +21,5 @@ class CafeItem {
       this.name,
       this.geopoint,
       this.contact,
-      this.region});
+      this.timestamp});
 }
