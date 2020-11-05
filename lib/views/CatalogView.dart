@@ -1,8 +1,8 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rhacafe_v1/services/DatabaseService.dart';
 import 'package:rhacafe_v1/views/widgets/DefaultAppBar.dart';
 import './DetailView.dart';
@@ -46,7 +46,7 @@ class _CatalogViewState extends State<CatalogView> {
           slivers: [
             SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                return _CatalogCard(index, itemsList);
+                return buildCatalogCard(index, itemsList);
               }, childCount: itemsList.length),
             ),
             SliverToBoxAdapter(child: showFooter())
@@ -72,10 +72,9 @@ class _CatalogViewState extends State<CatalogView> {
   }
 
   void _onLoading() async {
-
-    if(!isEndOfCollection){
+    if (!isEndOfCollection) {
       List<DocumentSnapshot> newList =
-      await _db.getCafeSnapshotList(limit, lastVisible: lastVisible);
+          await _db.getCafeSnapshotList(limit, lastVisible: lastVisible);
 
       print(newList.length.toString());
 
@@ -84,12 +83,12 @@ class _CatalogViewState extends State<CatalogView> {
         lastCafeItemList.add(newDerivedList[i]);
       }
 
-      print(newList.elementAt(newList.length -1) == lastVisible);
+      print(newList.elementAt(newList.length - 1) == lastVisible);
 
-      if (newList.length < limit || newDerivedList.elementAt(newList.length -1) == lastCafeItemList.elementAt(lastCafeItemList.length -1)) {
-
+      if (newList.length < limit ||
+          newDerivedList.elementAt(newList.length - 1) ==
+              lastCafeItemList.elementAt(lastCafeItemList.length - 1)) {
         isEndOfCollection = true;
-
       }
 
       nextCafeItemList = lastCafeItemList;
@@ -97,7 +96,7 @@ class _CatalogViewState extends State<CatalogView> {
       setState(() {
         isInitialLoad = false;
       });
-    } else{
+    } else {
       Flushbar(
         message: "불러드릴 정보가 없습니다",
         duration: Duration(seconds: 2),
@@ -143,16 +142,70 @@ class _CatalogViewState extends State<CatalogView> {
           }
         });
   }
-}
 
-class _CatalogCard extends StatelessWidget {
-  final int index;
-  final List<CafeItem> itemsList;
+  Widget imageSlider(List<String> imageUrls, BuildContext context) {
 
-  _CatalogCard(this.index, this.itemsList, {Key key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
+    if (imageUrls.length == 0) {
+      return Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height / 3,
+        decoration: BoxDecoration(
+          color: Colors.white
+        ),
+      );
+    } else {
+      return Column(
+        children: <Widget>[
+          CarouselSlider(
+            options: CarouselOptions(
+              viewportFraction: 1,
+              enableInfiniteScroll: false,
+              height: MediaQuery.of(context).size.height / 3,
+            ),
+            items: imageUrls
+                .map(
+                  (e) => Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height / 3,
+                child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: CachedNetworkImage(
+                      placeholder: (context, url) => Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height / 3,
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                      imageUrl: e,
+//                  fit: BoxFit.cover,
+                    )),
+              ),
+            )
+                .toList(),
+          ),
+//          Row(
+//            mainAxisAlignment: MainAxisAlignment.center,
+//            children: imageUrls.map((url) {
+//              int index = imageUrls.indexOf(url);
+//              return Container(
+//                width: 8.0,
+//                height: 8.0,
+//                margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+//                decoration: BoxDecoration(
+//                  shape: BoxShape.circle,
+//                  color: _current == index
+//                      ? Color.fromRGBO(0, 0, 0, 0.9)
+//                      : Color.fromRGBO(0, 0, 0, 0.4),
+//                ),
+//              );
+//            }).toList(),
+//          )
+        ],
+      );
+    }
+  }
+
+  Widget buildCatalogCard(int index, List<CafeItem>itemsList) {
     final item = itemsList.elementAt(index);
 
     var textTheme = Theme.of(context).textTheme;
@@ -161,25 +214,11 @@ class _CatalogCard extends StatelessWidget {
         onTap: () => Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => DetailView(item))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height / 3,
-            child: FittedBox(
-                fit: BoxFit.cover,
-                child: CachedNetworkImage(
-                  placeholder: (context, url) => Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 3,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                  imageUrl: item.imageUrl,
-//                  fit: BoxFit.fitHeight,
-                )),
-          ),
+          imageSlider(item.imageUrl, context),
           Padding(
             padding: EdgeInsets.fromLTRB(12.0, 20.0, 12.0, 0.0),
             child:
-                Text(item.location.substring(0, 6), style: textTheme.subtitle2),
+            Text(item.location.substring(0, 6), style: textTheme.subtitle2),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 0.0),
@@ -195,4 +234,5 @@ class _CatalogCard extends StatelessWidget {
           ),
         ]));
   }
+
 }

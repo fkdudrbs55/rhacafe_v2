@@ -7,12 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:rhacafe_v1/models/CafeItem.dart';
 import 'package:rhacafe_v1/models/Comment.dart';
 import 'package:rhacafe_v1/services/DatabaseService.dart';
-import 'package:rhacafe_v1/views/widgets/SmoothStarRating.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 class CommentSection extends StatelessWidget {
   //TODO 1 UI 다듬자
 
   final CafeItem item;
+  final DatabaseService _db = DatabaseService();
 
   CommentSection(this.item);
 
@@ -20,7 +21,6 @@ class CommentSection extends StatelessWidget {
   Widget build(BuildContext context) {
     var textTheme = Theme.of(context).textTheme;
 
-    final DatabaseService _db = DatabaseService();
 
     return FutureBuilder<List<DocumentSnapshot>>(
         future: _db.getCommentSnapshotList(item),
@@ -89,7 +89,7 @@ class CommentSection extends StatelessWidget {
                                           Row(
                                             children: <Widget>[
                                               Text(
-                                                e.ID,
+                                                e.username,
                                                 style: textTheme.bodyText1,
                                               ),
                                             ],
@@ -113,8 +113,8 @@ class CommentSection extends StatelessWidget {
                                       size: 15.0,
                                       filledIconData: Icons.star,
                                       halfFilledIconData: Icons.star_half,
-                                      color: Colors.yellow,
-                                      borderColor: Colors.yellow,
+                                      color: Colors.deepOrange,
+                                      borderColor: Colors.deepOrange,
                                       spacing: 0.0),
                                   SizedBox(width: 10),
                                   Text(

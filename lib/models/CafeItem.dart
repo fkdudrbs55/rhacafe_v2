@@ -2,7 +2,7 @@
 class CafeItem {
   final String documentID;
   final String title;
-  final String imageUrl;
+  final List<String> imageUrl;
   final String location;
   final String subtitle;
   final String content;

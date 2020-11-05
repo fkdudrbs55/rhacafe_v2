@@ -18,7 +18,9 @@ environment:
 
 dependencies:
 
-  pull_to_refresh: ^1.6.2
+  smooth_star_rating: ^1.1.1
+
+  carousel_slider: ^2.3.1
 
   algolia: ^0.1.7
 

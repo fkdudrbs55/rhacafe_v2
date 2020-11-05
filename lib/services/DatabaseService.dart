@@ -11,7 +11,8 @@ class DatabaseService {
 
   //TODO Firebase에서 업데이트 됐을 때 해당 내용이 Algolia에 반영되도록 조정
   Future<List<AlgoliaObjectSnapshot>> getAlgoliaCafeSnapshotList(
-      String input, ) async {
+    String input,
+  ) async {
     AlgoliaQuery query = _algolia.instance.index("dev_rhacafe").search(input);
 
     AlgoliaQuerySnapshot querySnapshot = await query.getObjects();
@@ -32,22 +33,23 @@ class DatabaseService {
 
     Map timestampMap = doc.data['timestamp'];
 
-    Timestamp timestamp = Timestamp(timestampMap.values.toList()[0], timestampMap.values.toList()[1]);
+    Timestamp timestamp = Timestamp(
+        timestampMap.values.toList()[0], timestampMap.values.toList()[1]);
+
+    List<String> imageUrls = List<String>.from(doc.data['imageUrl']);
 
     return CafeItem(
-      documentID: doc.objectID,
-      title: doc.data['title'] ?? '',
-      imageUrl: doc.data['imageUrl'] ?? '',
-      location: doc.data['location'] ?? '',
-      subtitle: doc.data['subtitle'] ?? '',
-      content: doc.data['content'] ?? '',
-      name: doc.data['name'] ?? '',
-      geopoint: doc.data['geopoint'] ?? '',
-      contact: doc.data['contact'] ?? '',
-      timestamp: timestamp.toDate() ?? Timestamp.now()
-    );
+        documentID: doc.objectID,
+        title: doc.data['title'] ?? '',
+        imageUrl: imageUrls ?? '',
+        location: doc.data['location'] ?? '',
+        subtitle: doc.data['subtitle'] ?? '',
+        content: doc.data['content'] ?? '',
+        name: doc.data['name'] ?? '',
+        geopoint: doc.data['geopoint'] ?? '',
+        contact: doc.data['contact'] ?? '',
+        timestamp: timestamp.toDate() ?? Timestamp.now());
   }
-
 
 //  Stream<List<CafeItem>> streamCafeList(int limit, {String startID = "none"}) {
 //    return _db.collection('SampleCollection').limit(limit).snapshots().map(
@@ -93,18 +95,19 @@ class DatabaseService {
     coordinates[0] = geoPoint.latitude;
     coordinates[1] = geoPoint.longitude;
 
+    List<String> imageUrls = List<String>.from(doc.data['imageUrl']);
+
     return CafeItem(
-      documentID: doc.documentID,
-      title: doc.data['title'] ?? '',
-      imageUrl: doc.data['imageUrl'] ?? '',
-      location: doc.data['location'] ?? '',
-      subtitle: doc.data['subtitle'] ?? '',
-      content: doc.data['content'] ?? '',
-      name: doc.data['name'] ?? '',
-      geopoint: coordinates ?? '',
-      contact: doc.data['contact'] ?? '',
-      timestamp: timestamp.toDate() ?? Timestamp.now()
-    );
+        documentID: doc.documentID,
+        title: doc.data['title'] ?? '',
+        imageUrl: imageUrls ?? '',
+        location: doc.data['location'] ?? '',
+        subtitle: doc.data['subtitle'] ?? '',
+        content: doc.data['content'] ?? '',
+        name: doc.data['name'] ?? '',
+        geopoint: coordinates ?? '',
+        contact: doc.data['contact'] ?? '',
+        timestamp: timestamp.toDate() ?? Timestamp.now());
   }
 
   Future<List<DocumentSnapshot>> getCommentSnapshotList(CafeItem item) async {
@@ -129,11 +132,23 @@ class DatabaseService {
     Timestamp timestamp = doc.data['timestamp'];
 
     return Comment(
-        ID: doc.data['ID'] ?? '',
+        uid: doc.data['uid'] ?? '',
+        username: doc.data['username'] ?? '',
         comment: doc.data['comment'] ?? '',
         score: double.parse(doc.data['score'].toString()) ?? '',
         timestamp: timestamp.toDate() ?? '',
         photoUrl: doc.data['photoUrl']);
   }
 
+  void addComment(String documentID, Comment comment) {
+    _db.collection('SampleCollection').document(documentID).collection('Comments').add({
+      'uid': comment.uid,
+      'username': comment.username,
+      'comment': comment.comment,
+      'score': comment.score,
+      'timestamp': Timestamp.now(),
+      'photoUrl': comment.photoUrl
+    }).then((value) => print(value.documentID)).catchError(
+        (onError) => print('Failed to add comment because of $onError'));
+  }
 }

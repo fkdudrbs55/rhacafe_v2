@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:rhacafe_v1/views/CatalogView.dart';
 import '../locationData.dart';
 import 'package:rhacafe_v1/views/widgets/CustomSearchDelegate.dart';
+import 'CurrentLocationView.dart';
 
-import 'SearchResultView.dart';
 
 class SearchView extends SearchDelegate<String> {
   final regions = LocationData().seoulRegions;
@@ -39,7 +39,8 @@ class SearchView extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return SearchResultView(query);
+//    return SearchResultView(query);
+  return CurrentLocationView(query: query);
   }
 
   @override

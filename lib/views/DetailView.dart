@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,14 +7,78 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:rhacafe_v1/models/CafeItem.dart';
 import 'package:rhacafe_v1/models/Comment.dart';
+import 'package:rhacafe_v1/views/AddCommentView.dart';
 import 'package:rhacafe_v1/views/widgets/CommentSection.dart';
-
 import '../services/DatabaseService.dart';
+
+//TODO 사진 슬라이드 충분? UI 및 기능 고민
 
 class DetailView extends StatelessWidget {
   final CafeItem item;
 
   DetailView(this.item);
+
+  Widget imageSlider(List<String> imageUrls, BuildContext context) {
+
+
+    if (imageUrls.length == 0) {
+      return Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height / 3,
+        decoration: BoxDecoration(
+            color: Colors.white
+        ),
+      );
+    } else {
+      return Column(
+        children: <Widget>[
+          CarouselSlider(
+            options: CarouselOptions(
+              viewportFraction: 1,
+              enableInfiniteScroll: false,
+              height: MediaQuery.of(context).size.height / 3,
+            ),
+            items: imageUrls
+                .map(
+                  (e) => Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height / 3,
+                child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: CachedNetworkImage(
+                      placeholder: (context, url) => Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height / 3,
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                      imageUrl: e,
+//                  fit: BoxFit.cover,
+                    )),
+              ),
+            )
+                .toList(),
+          ),
+//          Row(
+//            mainAxisAlignment: MainAxisAlignment.center,
+//            children: imageUrls.map((url) {
+//              int index = imageUrls.indexOf(url);
+//              return Container(
+//                width: 8.0,
+//                height: 8.0,
+//                margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+//                decoration: BoxDecoration(
+//                  shape: BoxShape.circle,
+//                  color: _current == index
+//                      ? Color.fromRGBO(0, 0, 0, 0.9)
+//                      : Color.fromRGBO(0, 0, 0, 0.4),
+//                ),
+//              );
+//            }).toList(),
+//          )
+        ],
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +86,16 @@ class DetailView extends StatelessWidget {
 
     GoogleMapController mapController;
 
-    final LatLng _center = LatLng(item.geopoint[0], item.geopoint[1]);
+    FirebaseUser user = Provider.of(context);
+
+    LatLng _center;
+
+    if(item.geopoint[0] == null){
+      _center = LatLng(item.geopoint.values.toList()[0], item.geopoint.values.toList()[1]);
+    } else{
+      _center = LatLng(item.geopoint[0], item.geopoint[1]);
+
+    }
 
     //TODO Separate map related factors into MapService?
     void _onMapCreated(GoogleMapController controller) {
@@ -38,18 +112,13 @@ class DetailView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-//      floatingActionButton: FloatingActionButton(
-//        child: Icon(Icons.add),
-//        onPressed: () {
-//          _db.addDemoDocument(item.documentID, {
-//            'ID': user.uid,
-//            'comment': '좋았어요',
-//            'score': 4,
-//            'timestamp': Timestamp.now(),
-//            'photoUrl': user.photoUrl
-//          });
-//        },
-//      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => AddCommentView(user, item.documentID)));
+        },
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -58,23 +127,24 @@ class DetailView extends StatelessWidget {
               children: <Widget>[
                 Column(
                   children: <Widget>[
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height/3,
-                      child: FittedBox(
-                          fit: BoxFit.cover,
-                          child: CachedNetworkImage(
-                            placeholder: (context, url) =>
-                                Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: MediaQuery.of(context).size.height/3,
-                                  child: Center(
-                                      child: CircularProgressIndicator()
-                                  ),
-                                ),
-                            imageUrl: item.imageUrl,
-                          )),
-                    ),
+                    imageSlider(item.imageUrl, context),
+//                    Container(
+//                      width: MediaQuery.of(context).size.width,
+//                      height: MediaQuery.of(context).size.height/3,
+//                      child: FittedBox(
+//                          fit: BoxFit.cover,
+//                          child: CachedNetworkImage(
+//                            placeholder: (context, url) =>
+//                                Container(
+//                                  width: MediaQuery.of(context).size.width,
+//                                  height: MediaQuery.of(context).size.height/3,
+//                                  child: Center(
+//                                      child: CircularProgressIndicator()
+//                                  ),
+//                                ),
+//                            imageUrl: item.imageUrl[0],
+//                          )),
+//                    ),
                     Container(
                       width: double.infinity,
                       height: MediaQuery.of(context).size.height/3,
@@ -85,14 +155,14 @@ class DetailView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
                                 Expanded(
-                                  flex: 7,
+                                  flex: 8,
                                   child: SizedBox(
                                     height: 5,
                                   ),
                                 ),
 
                                 Expanded(
-                                  flex: 3,
+                                  flex: 2,
                                   child: Row(
                                     children: <Widget>[
                                       Icon(Icons.local_cafe),
@@ -106,7 +176,7 @@ class DetailView extends StatelessWidget {
                                 ),
 //                            SizedBox(height: 15),
                                 Expanded(
-                                  flex: 3,
+                                  flex: 2,
                                   child: Row(
                                     children: <Widget>[
                                       Icon(Icons.place),
@@ -119,7 +189,7 @@ class DetailView extends StatelessWidget {
                                   ),
                                 ),
                                 Expanded(
-                                  flex: 3,
+                                  flex: 2,
                                   child: Row(
                                     children: <Widget>[
                                       Icon(Icons.phone),
@@ -209,7 +279,6 @@ class DetailView extends StatelessWidget {
                   )),
             ),
 
-            //Future Builder 를 아예 CommentTile로 보내버리자
             CommentSection(item),
           ],
         ),
