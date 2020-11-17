@@ -4,11 +4,9 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rhacafe_v1/services/DatabaseService.dart';
-import 'package:rhacafe_v1/views/widgets/DefaultAppBar.dart';
 import './DetailView.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:rhacafe_v1/models/CafeItem.dart';
-
 import 'HomeView.dart';
 
 class CatalogView extends StatefulWidget {
@@ -26,7 +24,6 @@ class _CatalogViewState extends State<CatalogView> {
   ScrollController _scrollController;
   bool isInitialLoad = true;
   bool isEndOfCollection = false;
-  static const lengthOfCollection = 8;
   static const limit = 5;
 
   @override
@@ -145,14 +142,11 @@ class _CatalogViewState extends State<CatalogView> {
 
   Widget imageSlider(List<String> imageUrls, BuildContext context) {
 
-
     if (imageUrls.length == 0) {
       return Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height / 3,
-        decoration: BoxDecoration(
-          color: Colors.white
-        ),
+        decoration: BoxDecoration(color: Colors.white),
       );
     } else {
       return Column(
@@ -166,21 +160,21 @@ class _CatalogViewState extends State<CatalogView> {
             items: imageUrls
                 .map(
                   (e) => Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height / 3,
-                child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: CachedNetworkImage(
-                      placeholder: (context, url) => Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height / 3,
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                      imageUrl: e,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height / 3,
+                    child: FittedBox(
+                        fit: BoxFit.cover,
+                        child: CachedNetworkImage(
+                          placeholder: (context, url) => Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height / 3,
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                          imageUrl: e,
 //                  fit: BoxFit.cover,
-                    )),
-              ),
-            )
+                        )),
+                  ),
+                )
                 .toList(),
           ),
 //          Row(
@@ -205,10 +199,27 @@ class _CatalogViewState extends State<CatalogView> {
     }
   }
 
-  Widget buildCatalogCard(int index, List<CafeItem>itemsList) {
-    final item = itemsList.elementAt(index);
+  Widget showScore(List<double> scores){
+    if(scores.isEmpty || scores == null){
+      return Text('');
+    } else {
 
+      double sum = 0.0;
+
+      for(int i = 0 ; i < scores.length ; i++){
+        sum = sum + scores[i];
+      }
+
+      double averageScore = sum/scores.length;
+
+      return Text(averageScore.toStringAsFixed(1).toString(), style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.brown),);
+    }
+  }
+
+  Widget buildCatalogCard(int index, List<CafeItem> itemsList) {
     var textTheme = Theme.of(context).textTheme;
+
+    final item = itemsList.elementAt(index);
 
     return InkWell(
         onTap: () => Navigator.of(context)
@@ -218,11 +229,17 @@ class _CatalogViewState extends State<CatalogView> {
           Padding(
             padding: EdgeInsets.fromLTRB(12.0, 20.0, 12.0, 0.0),
             child:
-            Text(item.location.substring(0, 6), style: textTheme.subtitle2),
+                Text(item.location.substring(0, 6), style: textTheme.subtitle2),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 0.0),
-            child: Text(item.title, style: textTheme.headline3),
+            child: Row(
+              children: <Widget>[
+                Text(item.title, style: textTheme.headline3),
+                Spacer(),
+                showScore(item.scores)
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 0.0),
@@ -234,5 +251,4 @@ class _CatalogViewState extends State<CatalogView> {
           ),
         ]));
   }
-
 }

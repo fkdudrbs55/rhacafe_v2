@@ -3,15 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rhacafe_v1/models/CafeItem.dart';
 import 'package:rhacafe_v1/models/Comment.dart';
 import 'package:rhacafe_v1/services/DatabaseService.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 class AddCommentView extends StatefulWidget {
   FirebaseUser user;
-  String documentID;
+  CafeItem item;
 
-  AddCommentView(this.user, this.documentID);
+  AddCommentView(this.user, this.item);
 
   @override
   State<StatefulWidget> createState() {
@@ -33,7 +34,7 @@ class _AddCommentViewState extends State<AddCommentView> {
         timestamp: Timestamp.now().toDate(),
         photoUrl: widget.user.photoUrl);
 
-    _db.addComment(widget.documentID, comment);
+    _db.addComment(widget.item, comment);
 
     Navigator.of(context).pop();
   }

@@ -1,5 +1,6 @@
 import 'package:algolia/algolia.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:rhacafe_v1/models/CafeItem.dart';
 import 'package:rhacafe_v1/services/AlgoliaApplication.dart';
 import 'dart:async';
@@ -11,15 +12,16 @@ class DatabaseService {
 
   //TODO Firebase에서 업데이트 됐을 때 해당 내용이 Algolia에 반영되도록 조정
   Future<List<AlgoliaObjectSnapshot>> getAlgoliaCafeSnapshotList(
-    String input,
+    String input, int page
   ) async {
-    AlgoliaQuery query = _algolia.instance.index("dev_rhacafe").search(input);
+//    AlgoliaQuery query = _algolia.instance.index("dev_rhacafe").search(input).setLength(limit);
+//
+//    AlgoliaQuerySnapshot querySnapshot = await query.getObjects();
 
-    AlgoliaQuerySnapshot querySnapshot = await query.getObjects();
+    AlgoliaQuerySnapshot qshot = await _algolia.instance.index("dev_rhacafe").search(input).setHitsPerPage(8).setPage(page).getObjects();
 
-    List<AlgoliaObjectSnapshot> results = querySnapshot.hits;
+    return qshot.hits;
 
-    return results;
   }
 
   List<CafeItem> deriveCafeListFromAlgolia(List<AlgoliaObjectSnapshot> list) {
@@ -28,6 +30,7 @@ class DatabaseService {
     return list.map((doc) => deriveCafeItemFromAlgoliaSnapshot(doc)).toList();
   }
 
+  //TODO 아니 왜 Catalog에서는 문제 없는데 여기서 계속 문제가 생겼을까? 우선 대충은 해결
   CafeItem deriveCafeItemFromAlgoliaSnapshot(AlgoliaObjectSnapshot doc) {
     print("deriveCafeItemFromAlgoliaSnapshot null? ${doc == null}");
 
@@ -38,21 +41,33 @@ class DatabaseService {
 
     List<String> imageUrls = List<String>.from(doc.data['imageUrl']);
 
+    List<double> scores = [];
+    List<dynamic> scoresDynamic = doc.data['scores'] ?? [];
+
+    if(doc.data['scores'] != null){
+
+      for(int i = 0; i < scoresDynamic.length; i++){
+        scores.add(double.parse(scoresDynamic.elementAt(i).toString()));
+      }
+
+    }
+
     return CafeItem(
         documentID: doc.objectID,
         title: doc.data['title'] ?? '',
-        imageUrl: imageUrls ?? '',
+        imageUrl: imageUrls ?? [],
         location: doc.data['location'] ?? '',
         subtitle: doc.data['subtitle'] ?? '',
         content: doc.data['content'] ?? '',
         name: doc.data['name'] ?? '',
         geopoint: doc.data['geopoint'] ?? '',
         contact: doc.data['contact'] ?? '',
-        timestamp: timestamp.toDate() ?? Timestamp.now());
+        timestamp: timestamp.toDate() ?? Timestamp.now(),
+        scores: scores);
   }
 
 //  Stream<List<CafeItem>> streamCafeList(int limit, {String startID = "none"}) {
-//    return _db.collection('SampleCollection').limit(limit).snapshots().map(
+//   return _db.collection('SampleCollection').limit(limit).snapshots().map(
 //        (list) => list.documents.map((doc) => deriveCafeItem(doc)).toList());
 //  }
 
@@ -97,17 +112,28 @@ class DatabaseService {
 
     List<String> imageUrls = List<String>.from(doc.data['imageUrl']);
 
+    List<double> scores;
+
+    if(doc.data['scores'] != null){
+      scores = List<double>.from(doc.data['scores']);
+    } else {
+      scores = [];
+    }
+
+
     return CafeItem(
         documentID: doc.documentID,
         title: doc.data['title'] ?? '',
-        imageUrl: imageUrls ?? '',
+        imageUrl: imageUrls ?? [],
         location: doc.data['location'] ?? '',
         subtitle: doc.data['subtitle'] ?? '',
         content: doc.data['content'] ?? '',
         name: doc.data['name'] ?? '',
         geopoint: coordinates ?? '',
         contact: doc.data['contact'] ?? '',
-        timestamp: timestamp.toDate() ?? Timestamp.now());
+        timestamp: timestamp.toDate() ?? Timestamp.now(),
+        scores: scores);
+
   }
 
   Future<List<DocumentSnapshot>> getCommentSnapshotList(CafeItem item) async {
@@ -140,8 +166,18 @@ class DatabaseService {
         photoUrl: doc.data['photoUrl']);
   }
 
-  void addComment(String documentID, Comment comment) {
-    _db.collection('SampleCollection').document(documentID).collection('Comments').add({
+
+  void addComment(CafeItem item, Comment comment) {
+
+    print(item.scores.length);
+
+    item.scores.add(comment.score.toDouble());
+
+    print(item.scores.length);
+
+    _db.collection('SampleCollection').document(item.documentID).updateData({'scores' : FieldValue.arrayUnion(item.scores)});
+
+    _db.collection('SampleCollection').document(item.documentID).collection('Comments').add({
       'uid': comment.uid,
       'username': comment.username,
       'comment': comment.comment,

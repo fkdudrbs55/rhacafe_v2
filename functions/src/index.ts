@@ -41,7 +41,8 @@ export const sendCollectionToAlgolia = functions.https.onRequest(async (req, res
             contact: document['contact'],
             geopoint: document['geopoint'],
             imageUrl: document['imageUrl'],
-            timestamp: document['timestamp']
+            timestamp: document['timestamp'],
+            scores: document['scores']
         };
 
         algoliaRecords.push(record);

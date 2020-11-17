@@ -10,6 +10,7 @@ class CafeItem {
   final Map geopoint;
   final String contact;
   final DateTime timestamp;
+  final List<double> scores;
 
   CafeItem(
       {this.documentID,
@@ -21,5 +22,6 @@ class CafeItem {
       this.name,
       this.geopoint,
       this.contact,
-      this.timestamp});
+      this.timestamp,
+      this.scores,});
 }

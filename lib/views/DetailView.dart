@@ -110,13 +110,14 @@ class DetailView extends StatelessWidget {
       )
     ]);
 
+
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddCommentView(user, item.documentID)));
+              .push(MaterialPageRoute(builder: (context) => AddCommentView(user, item)));
         },
       ),
       body: SingleChildScrollView(

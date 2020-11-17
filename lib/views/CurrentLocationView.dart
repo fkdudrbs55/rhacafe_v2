@@ -1,13 +1,9 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:rhacafe_v1/models/CafeItem.dart';
 import 'package:rhacafe_v1/models/UserLocation.dart';
-import 'package:rhacafe_v1/services/AlgoliaApplication.dart';
 import 'package:rhacafe_v1/services/DatabaseService.dart';
-import 'package:rhacafe_v1/services/LocationService.dart';
-import 'package:rhacafe_v1/views/HomeView.dart';
 import 'widgets/CurrentLocationCard.dart';
 import 'package:algolia/algolia.dart';
 
@@ -23,6 +19,19 @@ class CurrentLocationView extends StatefulWidget {
 }
 
 class _CurrentLocationViewState extends State<CurrentLocationView> {
+
+  //TODO isEndOfCollection, isInitialLoad 이대로 괜찮나?
+
+  ScrollController _scrollController;
+  bool isInitialLoad = true;
+  bool isEndOfCollection = false;
+  List<CafeItem> lastCafeItemList = [];
+  List<CafeItem> nextCafeItemList = [];
+  static const limit = 8;
+  int page = 0;
+
+  final DatabaseService _db = DatabaseService();
+
   final sort = [
     '최신순',
     '평점순',
@@ -48,9 +57,12 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
           return Wrap(children: <Widget>[
             Column(
               children: <Widget>[
-                Text(
-                  '정렬',
-                  style: textTheme.bodyText1,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 4.0),
+                  child: Text(
+                    '정렬',
+                    style: textTheme.bodyText1,
+                  ),
                 ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -108,24 +120,76 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
 
   //TODO 위치 기반해서 인접 카페를 검색/지도 상에 보여주기(Algolia)
 
+  void _onLoading() async {
+
+
+    if (!isEndOfCollection) {
+
+      page++;
+
+      List<AlgoliaObjectSnapshot> newList =
+          await _db.getAlgoliaCafeSnapshotList(widget.query, page);
+
+      print('Length of newList is ${newList.length.toString()}');
+
+      List<CafeItem> newDerivedList = _db.deriveCafeListFromAlgolia(newList);
+      for (int i = 0; i < newDerivedList.length; i++) {
+        lastCafeItemList.add(newDerivedList[i]);
+      }
+
+      if (newList.length < limit ||
+          newDerivedList.elementAt(newList.length - 1) ==
+              lastCafeItemList.elementAt(lastCafeItemList.length - 1)) {
+        isEndOfCollection = true;
+      }
+
+      nextCafeItemList = lastCafeItemList;
+
+      setState(() {
+        isInitialLoad = false;
+
+      });
+    } else {
+      Flushbar(
+        message: "불러드릴 정보가 없습니다",
+        duration: Duration(seconds: 2),
+      )..show(context);
+
+      return;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController = ScrollController()..addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _onLoading();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return buildFutureBuilder(context, query: widget.query);
 
+    print('isInitialLoad is $isInitialLoad, isEndOfCollection is $isEndOfCollection');
+
+    return buildFutureBuilder(context, query: widget.query);
   }
 
   Widget buildFutureBuilder(BuildContext context, {String query}) {
     var textTheme = Theme.of(context).textTheme;
 
-    DatabaseService _db = DatabaseService();
-
     if (query != null) {
       return FutureBuilder<List<AlgoliaObjectSnapshot>>(
-          future: _db.getAlgoliaCafeSnapshotList(query),
+          future: _db.getAlgoliaCafeSnapshotList(query, page),
           builder: (context, snapshot) {
-
-            if (snapshot.connectionState == ConnectionState.waiting ||
-                snapshot.data == null) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                                    isInitialLoad == true) {
               return Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
@@ -136,6 +200,10 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
             List<CafeItem> cafeList =
                 _db.deriveCafeListFromAlgolia(snapshot.data);
 
+            print(cafeList.length);
+
+            lastCafeItemList = cafeList;
+
             if (_currentSort == 0) {
               cafeList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
             } else if (_currentSort == 1) {
@@ -143,6 +211,16 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
             } else {
               cafeList.sort((a, b) => a.contact.compareTo(b.contact));
             }
+
+
+            if (isInitialLoad) {
+
+              nextCafeItemList = cafeList;
+
+              if(snapshot.data.isEmpty){
+                return Center(child: Text('아직 없습니다'));}
+            }
+
 
             return Column(
               children: <Widget>[
@@ -177,45 +255,26 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
                     ],
                   ),
                 ),
-                Expanded(
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverList(
-                          delegate:
-                              SliverChildBuilderDelegate((context, index) {
-                        return CurrentLocationCard(index, cafeList);
-                      }, childCount: cafeList.length)),
-                    ],
-                  ),
-                ),
+                buildScrollView(nextCafeItemList)
               ],
             );
           });
-    } else{
+    } else {
       UserLocation currentLocation = Provider.of(context);
 
       if (currentLocation == null) {
         return Container(
-          width: MediaQuery
-              .of(context)
-              .size
-              .width,
-          height: MediaQuery
-              .of(context)
-              .size
-              .height,
-          child: Center(
-              child: CircularProgressIndicator()
-          ),
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: Center(child: CircularProgressIndicator()),
         );
       }
 
       return FutureBuilder<List<AlgoliaObjectSnapshot>>(
-          future: _db.getAlgoliaCafeSnapshotList(currentLocation.dong),
+          future: _db.getAlgoliaCafeSnapshotList(currentLocation.dong, page),
           builder: (context, snapshot) {
-
-            if (snapshot.connectionState == ConnectionState.waiting ||
-                snapshot.data == null) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                    isInitialLoad == true) {
               return Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
@@ -223,12 +282,15 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
               );
             }
 
-            if (snapshot.data.isEmpty) {
-              return Center(child: Text('아직 없습니다'));
+            if (isInitialLoad) {
+              if(snapshot.data.isEmpty){
+              return Center(child: Text('아직 없습니다'));}
             }
 
             List<CafeItem> cafeList =
-            _db.deriveCafeListFromAlgolia(snapshot.data);
+                _db.deriveCafeListFromAlgolia(snapshot.data);
+
+            lastCafeItemList = cafeList;
 
             if (_currentSort == 0) {
               cafeList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -236,6 +298,10 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
               cafeList.sort((a, b) => a.name.length.compareTo(b.name.length));
             } else {
               cafeList.sort((a, b) => a.contact.compareTo(b.contact));
+            }
+
+            if(isInitialLoad){
+              nextCafeItemList = cafeList;
             }
 
             return Column(
@@ -262,8 +328,8 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
                       ),
                       Spacer(),
                       ActionChip(
-                        label:
-                        Text(sort[_currentSort], style: textTheme.bodyText2),
+                        label: Text(sort[_currentSort],
+                            style: textTheme.bodyText2),
                         onPressed: () => sortModalBottomSheet(context),
                       ),
                       SizedBox(
@@ -286,19 +352,33 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
                     ],
                   ),
                 ),
-                Expanded(
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverList(
-                          delegate: SliverChildBuilderDelegate((context, index) {
-                            return CurrentLocationCard(index, cafeList);
-                          }, childCount: cafeList.length)),
-                    ],
-                  ),
-                ),
+                    buildScrollView(nextCafeItemList)
               ],
             );
           });
+    }
+  }
+
+  Widget buildScrollView(List<CafeItem> itemList) {
+    return Expanded(
+        child: CustomScrollView(controller: _scrollController,
+            physics: ClampingScrollPhysics(),
+            slivers: [
+      SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+        return CurrentLocationCard(index, itemList);
+      }, childCount: itemList.length)),
+      SliverToBoxAdapter(child: showFooter(itemList.length))
+    ]));
+  }
+
+  Widget showFooter(int length) {
+    if (!isEndOfCollection && length > 7) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      return null;
     }
   }
 }
