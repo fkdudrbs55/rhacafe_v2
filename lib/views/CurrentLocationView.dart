@@ -128,11 +128,11 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
       page++;
 
       List<AlgoliaObjectSnapshot> newList =
-          await _db.getAlgoliaCafeSnapshotList(widget.query, page);
+          await DatabaseService.getAlgoliaCafeSnapshotList(widget.query, page);
 
       print('Length of newList is ${newList.length.toString()}');
 
-      List<CafeItem> newDerivedList = _db.deriveCafeListFromAlgolia(newList);
+      List<CafeItem> newDerivedList = DatabaseService.deriveCafeListFromAlgolia(newList);
       for (int i = 0; i < newDerivedList.length; i++) {
         lastCafeItemList.add(newDerivedList[i]);
       }
@@ -186,7 +186,7 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
 
     if (query != null) {
       return FutureBuilder<List<AlgoliaObjectSnapshot>>(
-          future: _db.getAlgoliaCafeSnapshotList(query, page),
+          future: DatabaseService.getAlgoliaCafeSnapshotList(query, page),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting &&
                                     isInitialLoad == true) {
@@ -198,7 +198,7 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
             }
 
             List<CafeItem> cafeList =
-                _db.deriveCafeListFromAlgolia(snapshot.data);
+            DatabaseService.deriveCafeListFromAlgolia(snapshot.data);
 
             print(cafeList.length);
 
@@ -271,7 +271,7 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
       }
 
       return FutureBuilder<List<AlgoliaObjectSnapshot>>(
-          future: _db.getAlgoliaCafeSnapshotList(currentLocation.dong, page),
+          future: DatabaseService.getAlgoliaCafeSnapshotList(currentLocation.dong, page),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting &&
                     isInitialLoad == true) {
@@ -288,7 +288,7 @@ class _CurrentLocationViewState extends State<CurrentLocationView> {
             }
 
             List<CafeItem> cafeList =
-                _db.deriveCafeListFromAlgolia(snapshot.data);
+            DatabaseService.deriveCafeListFromAlgolia(snapshot.data);
 
             lastCafeItemList = cafeList;
 

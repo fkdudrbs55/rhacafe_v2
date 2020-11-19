@@ -34,7 +34,7 @@ class _AddCommentViewState extends State<AddCommentView> {
         timestamp: Timestamp.now().toDate(),
         photoUrl: widget.user.photoUrl);
 
-    _db.addComment(widget.item, comment);
+    DatabaseService.addComment(widget.item, comment);
 
     Navigator.of(context).pop();
   }

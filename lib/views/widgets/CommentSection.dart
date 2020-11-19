@@ -23,7 +23,7 @@ class CommentSection extends StatelessWidget {
 
 
     return FutureBuilder<List<DocumentSnapshot>>(
-        future: _db.getCommentSnapshotList(item),
+        future: DatabaseService.getCommentSnapshotList(item),
         builder: (context, snapshot) {
 
           if(snapshot.connectionState == ConnectionState.waiting){
@@ -37,7 +37,7 @@ class CommentSection extends StatelessWidget {
           }
           List<DocumentSnapshot> data = snapshot.data;
 
-          List<Comment> commentList = _db.deriveCommentList(data);
+          List<Comment> commentList = DatabaseService.deriveCommentList(data);
 
           if (commentList.length == 0) {
             return Container(

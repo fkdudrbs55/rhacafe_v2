@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:rhacafe_v1/notifiers/CafeNotifier.dart';
 import 'package:rhacafe_v1/views/LoginView.dart';
 import 'models/UserLocation.dart';
 import 'services/LocationService.dart';
@@ -30,7 +31,11 @@ class MyApp extends StatelessWidget {
 
         FutureProvider<UserLocation>.value(
           value: _ls.getCurrentLocationString(),
-        )
+        ),
+
+        ChangeNotifierProvider(
+          create: (context) => CafeNotifier(),
+        ),
 
       ],
       child: MaterialApp(
